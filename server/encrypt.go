@@ -11,8 +11,6 @@ import (
 	"github.com/ddzwd/JumpServerSSHClient/instance"
 )
 
-var SecretKey = "K6UX6C54YBGVYNQD"
-
 func int_to_bytestring(i uint64) []byte {
 	var result []byte
 	for i > 0 {

@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -11,16 +9,12 @@ import (
 )
 
 type Config struct {
-	users []User `yaml:"users"`
+	Path        string `yaml:"-"`
+	Users       []User `yaml:"users"`
+	DefaultUser string `yaml:"default_user"`
 }
 
-func get_config_path() string {
-	// 获取配置文件路径
-	expandedPath := instance.CONFIG_FILE
-	fmt.Println(expandedPath)
-	// if err != nil {
-	// 	log.Fatalf("无法获取配置文件路径:%v", err)
-	// }
+func get_config_path(expandedPath string) string {
 	if len(expandedPath) > 0 && expandedPath[0] == '~' {
 		home, err := os.UserHomeDir()
 		if err != nil {
@@ -32,9 +26,9 @@ func get_config_path() string {
 	return expandedPath
 }
 
-func ValidateConfigExist() bool {
+func ValidateConfigExist(path string) bool {
 	// 检查文件是否存在
-	_, err := os.Stat(get_config_path())
+	_, err := os.Stat(get_config_path(path))
 	if err != nil {
 		if os.IsNotExist(err) {
 			// 文件不存在
@@ -44,8 +38,9 @@ func ValidateConfigExist() bool {
 	return true
 }
 
-func LoadConfig() Config {
-	yamlFile, err := ioutil.ReadFile(get_config_path())
+func LoadConfig(path string) Config {
+	p := get_config_path(path)
+	yamlFile, err := os.ReadFile(p)
 	if err != nil {
 		instance.Logger.Fatalf("无法打开YAML文件:%v", err)
 	}
@@ -54,33 +49,26 @@ func LoadConfig() Config {
 	if err != nil {
 		instance.Logger.Fatalf("无法解析YAML文件:%v", err)
 	}
+	config.Path = p
 	return config
 
 }
 
-func (c *Config) save() {
+func (c *Config) Save() {
+	instance.Logger.Debugf("configBytes: %v", c)
 	configBytes, err := yaml.Marshal(c)
 	if err != nil {
 		instance.Logger.Fatalf("无法生成YAML数据:%v", err)
 	}
-	err = ioutil.WriteFile(get_config_path(), configBytes, os.ModePerm)
+	instance.Logger.Debugf("configBytes: %v", string(configBytes))
+	err = os.WriteFile(c.Path, configBytes, os.ModePerm)
 	if err != nil {
 		instance.Logger.Fatalf("无法写入YAML文件:%v", err)
 	}
 }
 
-func InitConfig() {
+func InitConfig(path string) {
 	// 初始化文件
-	config := Config{users: []User{}}
-	config.users = append(config.users, User{
-		UniqueId:   "test",
-		UserName:   "test",
-		Password:   "",
-		Host:       "",
-		Port:       "",
-		SecretKey:  "",
-		RsaKeyPath: "",
-		Alias:      "",
-	})
-	config.save()
+	config := Config{Users: []User{}, Path: get_config_path(path)}
+	config.Save()
 }
