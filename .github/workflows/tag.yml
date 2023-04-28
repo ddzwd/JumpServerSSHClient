@@ -80,6 +80,12 @@ jobs:
           echo "previousTag: $name"
           echo "previousTag=$name" >> $GITHUB_ENV
 
+      - name: Get current tag
+        id: current_tag
+        run: |
+          echo "Current tag: $(git describe --tags --abbrev=0)"
+          echo "::set-output name=tag_name::$(git describe --tags --abbrev=0)"
+
       - name: Update CHANGELOG
         id: changelog
         uses: requarks/changelog-action@v1
@@ -95,8 +101,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
+          tag_name:  ${{ steps.current_tag.outputs.tag_name }}
+          release_name: Release  ${{ steps.current_tag.outputs.tag_name }}
           body: ${{ steps.changelog.outputs.changes }}
           draft: false
           prerelease: false
@@ -130,7 +136,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.create_release.outputs.cr.upload_url }}
+          upload_url:  ${{ needs.create_release.jobs.create_release.outputs.cr.upload_url }}
           asset_path: 'build/JumpServerSSHClient*'
           asset_name: '{filename}'
           asset_content_type: application/octet-stream
