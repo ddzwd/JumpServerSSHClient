@@ -107,7 +107,7 @@ jobs:
       - name: Download Build Artifact
         uses: actions/download-artifact@v2
         with:
-          name: JumpServerSSHClient*
+          name: 'JumpServerSSHClient*'
           path: build/
           
       # Upload all binary files to the newly created release
