@@ -48,7 +48,7 @@ func GetAuthMethods(user *config.User) (auths []ssh.AuthMethod, err error) {
 				if user.SecretKey != "" {
 					answers = append(answers, server.NewMFA(user.SecretKey))
 				} else {
-					instance.Logger.Warn("user %s need MFA auth, but SecretKey is not set. add this to auto complete", user.UniqueId)
+					instance.Logger.Warnf("user %s need MFA auth, but SecretKey is not set. add this to auto complete", user.UniqueId)
 				}
 			} else {
 				// 提示question

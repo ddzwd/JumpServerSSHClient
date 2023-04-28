@@ -23,13 +23,13 @@ var userDeleteCmd = &cobra.Command{
 		conf := config.LoadConfig(instance.CONFIG_FILE)
 		fmt.Println(args)
 		for _, unique_id := range args {
-			instance.Logger.Info("ready to delete user %s", unique_id)
+			instance.Logger.Infof("ready to delete user %s", unique_id)
 			user := config.GetUserById(unique_id, &conf)
 			if user == nil {
 				instance.Logger.Errorf("cont find record by id %s", unique_id)
 			} else {
 				user.Delete(&conf)
-				instance.Logger.Info("delete user %s success", unique_id)
+				instance.Logger.Infof("delete user %s success", unique_id)
 			}
 		}
 		conf.Save()
