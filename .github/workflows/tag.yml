@@ -1,0 +1,107 @@
+name: Build and Publish Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '^v[0-9]+\.[0-9]+\.[0-9]+$'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        go-version: [1.20]
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        arch: [amd64, arm64]
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+    
+      - name: Build
+        run: go build -o JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }} main.go
+      
+      - name: Archive
+        uses: actions/upload-artifact@v2
+        with:
+          name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
+          path: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
+          
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      # Check if a release already exists for the current run number
+      - name: Check for Existing Releases
+        id: check_release
+        uses: MarvinJWendt/check-existing-release-action@v1.1.1
+        with:
+          tag: ${{ github.ref }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+    
+      # Skip if release already exists for the current tag
+      - name: Skip if Release Exists
+        if: steps.check_release.outputs.exists == 'true'
+        run: exit 0
+    
+      # Get the previous tag
+      - name: Get Previous Tag
+        id: get_old_tag
+        run: |
+          echo "::set-output name=old_tag::$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
+    
+      # Create new Release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: ${{ steps.generate_changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+        
+      # Download and extract the archive artifact from the build job
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
+          
+      # Upload all binary files to the newly created release
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: |
+            ./JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
+          asset_name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
+          asset_content_type: application/octet-stream
+     
+      # Generate Changelog
+      - name: Generate Changelog
+        id: generate_changelog
+        uses: marvinpinto/action-automatic-changelog@v1.3.3
+        with:
+          repo_token: ${{github.token}}
+          labels: 'changelog'
+          change_type: 'fix, feat'
+          version: ${{github.ref}}
+          previous_version: ${{steps.get_old_tag.outputs.old_tag}}
+          exclude_numeric: true
