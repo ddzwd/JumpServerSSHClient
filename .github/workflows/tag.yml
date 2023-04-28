@@ -34,7 +34,12 @@ jobs:
     
     needs: test
     strategy:
-      matrix: ${{ include '../matrix.yml' }}
+      matrix:
+        os: [windows, darwin, linux]
+        arch: [amd64, arm64]
+        exclude:
+          - os: windows
+            arch: arm64
 
     runs-on: ubuntu-latest
     
@@ -102,7 +107,12 @@ jobs:
     runs-on: ubuntu-latest
     
     strategy:
-      matrix: ${{ include '../matrix.yml' }}
+      matrix:
+        os: [windows, darwin, linux]
+        arch: [amd64, arm64]
+        exclude:
+          - os: windows
+            arch: arm64
     
     steps:
         
