@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ddzwd/JumpServerSSHClient/instance"
+	"JumpServerSSHClient/instance"
 )
 
 func int_to_bytestring(i uint64) []byte {

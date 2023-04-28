@@ -5,9 +5,11 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package ssh
 
 import (
-	"github.com/ddzwd/JumpServerSSHClient/config"
-	"github.com/ddzwd/JumpServerSSHClient/instance"
-	"github.com/ddzwd/JumpServerSSHClient/terminal"
+	"JumpServerSSHClient/config"
+
+	"JumpServerSSHClient/instance"
+	"JumpServerSSHClient/terminal"
+
 	"github.com/spf13/cobra"
 )
 

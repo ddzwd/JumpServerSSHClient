@@ -8,8 +8,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ddzwd/JumpServerSSHClient/config"
-	"github.com/ddzwd/JumpServerSSHClient/instance"
+	"JumpServerSSHClient/config"
+	"JumpServerSSHClient/instance"
+
 	gonanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/spf13/cobra"
 )

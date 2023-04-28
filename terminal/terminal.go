@@ -8,9 +8,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ddzwd/JumpServerSSHClient/config"
-	"github.com/ddzwd/JumpServerSSHClient/instance"
-	"github.com/ddzwd/JumpServerSSHClient/server"
+	"JumpServerSSHClient/config"
+
+	"JumpServerSSHClient/instance"
+	"JumpServerSSHClient/server"
+
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/term"

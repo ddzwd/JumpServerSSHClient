@@ -3,7 +3,7 @@ package server_test
 import (
 	"testing"
 
-	"github.com/ddzwd/JumpServerSSHClient/server"
+	"JumpServerSSHClient/server"
 )
 
 func TestMFAGenerate(t *testing.T) {

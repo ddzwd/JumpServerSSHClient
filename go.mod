@@ -1,4 +1,4 @@
-module github.com/ddzwd/JumpServerSSHClient
+module JumpServerSSHClient
 
 go 1.20
 

@@ -7,7 +7,8 @@ package secret
 import (
 	"fmt"
 
-	"github.com/ddzwd/JumpServerSSHClient/server"
+	"JumpServerSSHClient/server"
+
 	"github.com/spf13/cobra"
 )
 

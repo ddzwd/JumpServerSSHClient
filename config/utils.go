@@ -4,7 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ddzwd/JumpServerSSHClient/instance"
+	"JumpServerSSHClient/instance"
+
 	"gopkg.in/yaml.v2"
 )
 

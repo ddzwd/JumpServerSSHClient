@@ -7,8 +7,9 @@ package user
 import (
 	"fmt"
 
-	"github.com/ddzwd/JumpServerSSHClient/config"
-	"github.com/ddzwd/JumpServerSSHClient/instance"
+	"JumpServerSSHClient/config"
+	"JumpServerSSHClient/instance"
+
 	"github.com/spf13/cobra"
 )
 

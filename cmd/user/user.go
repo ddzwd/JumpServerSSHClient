@@ -5,7 +5,8 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package user
 
 import (
-	"github.com/ddzwd/JumpServerSSHClient/instance"
+	"JumpServerSSHClient/instance"
+
 	"github.com/spf13/cobra"
 )
 

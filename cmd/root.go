@@ -8,11 +8,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ddzwd/JumpServerSSHClient/cmd/conf"
-	"github.com/ddzwd/JumpServerSSHClient/cmd/secret"
-	"github.com/ddzwd/JumpServerSSHClient/cmd/ssh"
-	"github.com/ddzwd/JumpServerSSHClient/cmd/user"
-	"github.com/ddzwd/JumpServerSSHClient/instance"
+	"JumpServerSSHClient/cmd/conf"
+	"JumpServerSSHClient/cmd/secret"
+	"JumpServerSSHClient/cmd/ssh"
+	"JumpServerSSHClient/cmd/user"
+	"JumpServerSSHClient/instance"
+
 	"github.com/spf13/cobra"
 )
 
