@@ -34,19 +34,13 @@ jobs:
     
     needs: test
     strategy:
-      matrix:
-        os: [windows, darwin, linux]
-        arch: [amd64, arm64]
-        exclude:
-          - os: windows
-            arch: arm64
-
+      matrix: ${{ include '../matrix.yml' }}
 
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{github.ref}}
 
@@ -64,11 +58,10 @@ jobs:
         with:
           name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
           path: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
-          
-  publish:
+
+  create_release:
     needs: build
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -92,22 +85,32 @@ jobs:
           writeToFile: false
 
       - name: Create Release
-        id: create_release
+        id: cr
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
           body: ${{ steps.changelog.outputs.changes }}
           draft: false
           prerelease: false
+      
+          
+  publish:
+    needs: create_release
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix: ${{ include '../matrix.yml' }}
+    
+    steps:
         
       # Download and extract the archive artifact from the build job
       - name: Download Build Artifact
         uses: actions/download-artifact@v2
         with:
-          name: 'JumpServerSSHClient*'
+          name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
           path: build/
           
       # Upload all binary files to the newly created release
@@ -117,7 +120,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create_release.outputs.cr.upload_url }}
           asset_path: 'build/JumpServerSSHClient*'
           asset_name: '{filename}'
           asset_content_type: application/octet-stream

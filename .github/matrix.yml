@@ -1,0 +1,6 @@
+matrix:
+    os: [windows, darwin, linux]
+    arch: [amd64, arm64]
+    exclude:
+      - os: windows
+        arch: arm64
