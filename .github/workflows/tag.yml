@@ -94,6 +94,8 @@ jobs:
           fromTag: ${{ github.ref_name }}
           toTag: ${{ env.previousTag }}
           writeToFile: false
+          filter: |
+                grep 'feat\|fix'
 
       - name: Create Release
         id: cr
@@ -128,6 +130,11 @@ jobs:
         with:
           name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
           path: build/
+
+      - name: Debug outputs
+        run: |
+          echo "Create release job outputs: ${{ toJson(needs.create_release.jobs) }}"
+          echo "Create release job output variables: ${{ toJson(needs.create_release.jobs.create_release.outputs) }}"
           
       # Upload all binary files to the newly created release
       - name: Upload Release Asset
@@ -137,7 +144,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url:  ${{ needs.create_release.jobs.create_release.outputs.cr.upload_url }}
-          asset_path: 'build/JumpServerSSHClient*'
-          asset_name: '{filename}'
+          asset_path: build/JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
+          asset_name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
           asset_content_type: application/octet-stream
     
