@@ -57,13 +57,13 @@ jobs:
           go-version-file: 'go.mod'
     
       - name: Build
-        run: CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -o JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }} main.go
+        run: CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -o JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }} main.go
       
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
-          name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
-          path: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
+          name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
+          path: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
           
   publish:
     needs: build
@@ -73,65 +73,50 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         
-      # Check if a release already exists for the current run number
-      - name: Check for Existing Releases
-        id: check_release
-        uses: MarvinJWendt/check-existing-release-action@v1.1.1
-        with:
-          tag: ${{ github.ref }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-    
-      # Skip if release already exists for the current tag
-      - name: Skip if Release Exists
-        if: steps.check_release.outputs.exists == 'true'
-        run: exit 0
     
       # Get the previous tag
       - name: Get Previous Tag
         id: get_old_tag
         run: |
           echo "::set-output name=old_tag::$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))"
+
+      - name: Update CHANGELOG
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ github.ref_name }}
     
       # Create new Release
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1.0.6
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: ${{ steps.generate_changelog.outputs.changelog }}
+          allowUpdates: true
           draft: false
-          prerelease: false
+          makeLatest: true
+          name: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.changes }}
+          token: ${{ github.token }}
         
       # Download and extract the archive artifact from the build job
       - name: Download Build Artifact
         uses: actions/download-artifact@v2
         with:
-          name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
+          name: JumpServerSSHClient*
+          path: build/
           
       # Upload all binary files to the newly created release
       - name: Upload Release Asset
         id: upload-release-asset
-        uses: actions/upload-release-asset@v1.0.2
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: |
-            ./JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
-          asset_name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
+          asset_path: 'build/JumpServerSSHClient*'
+          asset_name: '{filename}'
           asset_content_type: application/octet-stream
-     
-      # Generate Changelog
-      - name: Generate Changelog
-        id: generate_changelog
-        uses: marvinpinto/action-automatic-changelog@v1.3.3
-        with:
-          repo_token: ${{github.token}}
-          labels: 'changelog'
-          change_type: 'fix, feat'
-          version: ${{github.ref}}
-          previous_version: ${{steps.get_old_tag.outputs.old_tag}}
-          exclude_numeric: true
+    
