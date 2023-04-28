@@ -1,11 +1,7 @@
-//go:build !windows
-// +build !windows
-
 package ter
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"time"
@@ -23,7 +19,7 @@ import (
 func GetAuthMethods(user *config.User) (auths []ssh.AuthMethod, err error) {
 	if user.RsaKeyPath != "" {
 		auths = append(auths, ssh.PublicKeysCallback(func() ([]ssh.Signer, error) {
-			privateKeyBytes, err := ioutil.ReadFile("/Users/shanweijia/.ssh/id_rsa")
+			privateKeyBytes, err := os.ReadFile("/Users/shanweijia/.ssh/id_rsa")
 			if err != nil {
 				instance.Logger.Fatalf("Failed to load private key: %v", err)
 			}
