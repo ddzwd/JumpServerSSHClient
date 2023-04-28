@@ -8,7 +8,7 @@ import (
 	"JumpServerSSHClient/config"
 
 	"JumpServerSSHClient/instance"
-	"JumpServerSSHClient/terminal"
+	"JumpServerSSHClient/ter"
 
 	"github.com/spf13/cobra"
 )
@@ -34,7 +34,7 @@ var sshCmd = &cobra.Command{
 		if user == nil {
 			instance.Logger.Errorf("cant find user by id %s", unique_id)
 		}
-		terminal.StartTerminal(user)
+		ter.StartTerminal(user)
 	},
 }
 

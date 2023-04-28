@@ -1,11 +1,13 @@
-package terminal
+//go:build !windows
+// +build !windows
+
+package ter
 
 import (
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/signal"
-	"syscall"
 	"time"
 
 	"JumpServerSSHClient/config"
@@ -120,13 +122,19 @@ func StartTerminal(user *config.User) {
 
 	// 处理终端大小调整信号
 	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGWINCH)
+
+	// 如果是 Unix 平台则注册 SIGWINCH 信号
+	// 在 Windows 平台上 SIGWINCH 常量不存在，所以不会注册该信号
+
+	// signal.Notify(sigChan, syscall.SIGWINCH)
+
 	defer signal.Stop(sigChan)
 	done := make(chan struct{})
+	ticker := time.NewTicker(200 * time.Millisecond)
 	go func() {
 		for {
 			select {
-			case <-sigChan:
+			case <-ticker.C:
 				width, height, err := term.GetSize(fd)
 				if err == nil {
 					session.WindowChange(height, width)
