@@ -67,6 +67,9 @@ jobs:
   create_release:
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.cr.outputs.upload_url }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -133,8 +136,8 @@ jobs:
 
       - name: Debug outputs
         run: |
-          echo "Create release job outputs: ${{ toJson(needs.create_release.jobs) }}"
-          echo "Create release job output variables: ${{ toJson(needs.create_release.jobs.create_release.outputs) }}"
+          echo "Create release job outputs: ${{ toJson(needs.create_release.outputs) }}"
+          echo "Create release job output variables: ${{ toJson(needs.create_release.outputs.upload_url) }}"
           
       # Upload all binary files to the newly created release
       - name: Upload Release Asset
@@ -143,7 +146,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url:  ${{ needs.create_release.jobs.create_release.outputs.cr.upload_url }}
+          upload_url:  ${{ needs.create_release.outputs.upload_url }}
           asset_path: build/JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
           asset_name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
           asset_content_type: application/octet-stream
