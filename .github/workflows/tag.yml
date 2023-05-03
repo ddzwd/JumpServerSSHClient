@@ -61,14 +61,15 @@ jobs:
       - name: Archive
         uses: actions/upload-artifact@v2
         with:
-          name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
-          path: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
+          name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
+          path: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
 
   create_release:
     needs: build
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.cr.outputs.upload_url }}
+      current_tag: ${{ steps.current_tag.outputs.tag_name }}
 
     steps:
       - name: Checkout
@@ -131,13 +132,14 @@ jobs:
       - name: Download Build Artifact
         uses: actions/download-artifact@v2
         with:
-          name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
+          name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
           path: build/
 
       - name: Debug outputs
         run: |
           echo "Create release job outputs: ${{ toJson(needs.create_release.outputs) }}"
           echo "Create release job output variables: ${{ toJson(needs.create_release.outputs.upload_url) }}"
+          echo "Create release job output variables: ${{ toJson(github) }}"
           
       # Upload all binary files to the newly created release
       - name: Upload Release Asset
@@ -147,7 +149,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url:  ${{ needs.create_release.outputs.upload_url }}
-          asset_path: build/JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
-          asset_name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }}
+          asset_path: build/JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
+          asset_name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ needs.create_release.outputs.current_tag }}
           asset_content_type: application/octet-stream
     
