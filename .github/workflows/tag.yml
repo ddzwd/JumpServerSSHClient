@@ -56,7 +56,7 @@ jobs:
           go-version-file: 'go.mod'
     
       - name: Build
-        run: CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -o JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}_${{ github.ref_name }} main.go
+        run: CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -o JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }} main.go
       
       - name: Archive
         uses: actions/upload-artifact@v2
@@ -95,11 +95,10 @@ jobs:
         uses: requarks/changelog-action@v1
         with:
           token: ${{ github.token }}
-          fromTag: ${{ github.ref_name }}
+          fromTag: ${{ steps.current_tag.outputs.tag_name }}
           toTag: ${{ env.previousTag }}
           writeToFile: false
-          filter: |
-                grep 'feat\|fix'
+          excludeTypes: build,docs,other,style,chore
 
       - name: Create Release
         id: cr
