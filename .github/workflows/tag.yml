@@ -131,12 +131,6 @@ jobs:
         with:
           name: JumpServerSSHClient_${{ matrix.os }}_${{ matrix.arch }}
           path: build/
-
-      - name: Debug outputs
-        run: |
-          echo "Create release job outputs: ${{ toJson(needs.create_release.outputs) }}"
-          echo "Create release job output variables: ${{ toJson(needs.create_release.outputs.upload_url) }}"
-          echo "Create release job output variables: ${{ toJson(github) }}"
           
       # Upload all binary files to the newly created release
       - name: Upload Release Asset
